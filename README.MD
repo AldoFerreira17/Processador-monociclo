@@ -29,3 +29,11 @@ ula.v: Unidade Lógica e Aritmética.
 control.v: Unidade de Controle Principal.
 ula_ctrl.v: Unidade de Controle da ULA.
 sign_extend.v: Extensor de sinal (16 bits -> 32 bits).
+
+comandos
+
+Compilar: iverilog -o mips_simu -I include test/testbench.v src/*.v
+
+Executar: vvp mips_simu
+
+Visualizar ondas no Gtkwave: gtkwave mips_waveform.vcd

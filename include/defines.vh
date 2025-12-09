@@ -2,7 +2,7 @@
 -------------------------------------------------------------------------
 Disciplina: Arquitetura e Organização de Computadores - 2025.2
 Atividade: Projeto 02 - Implementação de MIPS em Verilog
-Grupo: [INSERIR NOMES AQUI]
+Grupo: Aldo Ferreira, Andressa Américo, Carlos de Souza, Gustavo do Monte
 Arquivo: defines.vh
 Descrição: Definições de macros (constantes) para Opcodes, Functs e ALU.
 -------------------------------------------------------------------------
