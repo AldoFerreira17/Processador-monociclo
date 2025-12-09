@@ -1,12 +1,18 @@
 Processador de 32 bits para a 2 atividade avaliativa da disciplina de Arquitetura e Organização de Computadores. 
+
 Professor: Vitor Coutinho 
+
 Grupo: Aldo Ferreira, Andressa Américo, Carlos de Souza, Gustavo do Monte
+
 
 Ferramentas Utilizadas
 
 Linguagem: Verilog
-Compilador: Icarus Verilog 
+
+Compilador: Icarus Verilog
+
 Visualização de Ondas: GTKWave 
+
 Editor: VScode
 
 Instruções Suportadas
@@ -35,5 +41,7 @@ comandos
 Compilar: iverilog -o mips_simu -I include test/testbench.v src/*.v
 
 Executar: vvp mips_simu
+
+visualizar ondas gtkwave: gtkwave mips_waveform.vcd
 
 Visualizar ondas no Gtkwave: gtkwave mips_waveform.vcd
