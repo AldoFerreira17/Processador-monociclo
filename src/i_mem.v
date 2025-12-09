@@ -20,7 +20,7 @@ module i_mem(
     // Inicializa com zeros
     for (i = 0; i < `IMEM_SIZE; i = i + 1) mem[i] = 32'b0;
 
-    // Carrega o arquivo externo (Requisito do PDF)
+    // Carrega o arquivo externo 
     $readmemb("instruction.list", mem);
   end
   
