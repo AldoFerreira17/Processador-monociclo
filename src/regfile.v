@@ -2,7 +2,7 @@
 -------------------------------------------------------------------------
 Disciplina: Arquitetura e Organização de Computadores - 2025.2
 Atividade: Projeto 02 - Implementação de MIPS em Verilog
-Grupo: [INSERIR NOMES AQUI]
+Grupo: Aldo Ferreira, Andressa Américo, Carlos de Souza, Gustavo do Monte
 Arquivo: regfile.v
 Descrição: Banco com 32 registradores de 32 bits. Reg $0 é sempre zero.
 -------------------------------------------------------------------------

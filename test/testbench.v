@@ -2,10 +2,10 @@
 -------------------------------------------------------------------------
 Disciplina: Arquitetura e Organização de Computadores - 2025.2
 Atividade: Projeto 02 - Implementação de MIPS em Verilog
-Grupo: [INSERIR NOMES AQUI]
+Grupo: Aldo Ferreira, Andressa Américo, Carlos de Souza, Gustavo do Monte
 Arquivo: testbench.v
 Descrição: Gera clock/reset e monitora a execução do processador.
-           Configurado com tempo estendido para programas maiores.
+           Versão ajustada para exibir 0 em vez de Z na leitura de memória.
 -------------------------------------------------------------------------
 */
 `include "defines.vh"
@@ -44,11 +44,7 @@ module testbench;
     #10;
     reset = 0;
     
-    // -----------------------------------------------------------
-    // TEMPO DE SIMULAÇÃO AUMENTADO
-    // Como a instruction.list é grande, aumentamos para 5000ns.
-    // Se o programa não terminar, aumente este valor (ex: #10000).
-    // -----------------------------------------------------------
+    // Tempo de simulação calibrado para a lista de 64 instruções
     #800; 
     
     $display("---------------------------------------------------------");
@@ -59,19 +55,22 @@ module testbench;
   // Monitoramento (Imprime no terminal a cada ciclo de clock)
   always @(posedge clock) begin
     if (!reset) begin
-      // Exibe estado básico: Tempo, PC, Instrução (Hex), Resultado ULA
-      $write("Time: %4d | PC: %h | Instr: %h | ULA: %h ", 
-               $time, PCOut, dut.instruction, ALUResultOut);
+      // AQUI ESTÁ A MUDANÇA:
+      // Usamos (dut.MemRead ? MemOut : 32'h0)
+      // Se estiver lendo (MemRead=1), mostra o valor real. Se não, mostra 0.
+      $write("Time: %4d | PC: %h | Instr: %h | ULA: %h | Mem: %h", 
+             $time, PCOut, dut.instruction, ALUResultOut, 
+             (dut.MemRead ? MemOut : 32'h0));
 
-      // Feedback específico para operações de Memória
+      // Feedback específico para operações de Memória (Logs extras)
       if (dut.MemWrite) begin
-          $display("| [MEM WRITE] Escreveu %h no end. %h", dut.dmem.WriteData, ALUResultOut);
+          $display(" | [MEM WRITE] Escreveu %h no end. %h", dut.dmem.WriteData, ALUResultOut);
       end
       else if (dut.MemRead) begin
-          $display("| [MEM READ] Leu %h do end. %h", MemOut, ALUResultOut);
+          $display(" | [MEM READ] Leu %h do end. %h", MemOut, ALUResultOut);
       end
       else begin
-          $display(""); // Apenas pular linha
+          $display(""); // Apenas pular linha para manter a formatação
       end
     end
   end

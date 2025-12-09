@@ -2,7 +2,7 @@
 -------------------------------------------------------------------------
 Disciplina: Arquitetura e Organização de Computadores - 2025.2
 Atividade: Projeto 02 - Implementação de MIPS em Verilog
-Grupo: [INSERIR NOMES AQUI]
+Grupo: Aldo Ferreira, Andressa Américo, Carlos de Souza, Gustavo do Monte
 Arquivo: control.v
 Descrição: Decodifica o Opcode e gera sinais de controle para o Datapath.
 -------------------------------------------------------------------------
@@ -16,30 +16,85 @@ module control(
   output reg [1:0] ALUOp,
   output reg MemWrite, ALUSrc, RegWrite, Jr, ExtOp, JalEn, LuiEn
 );
+
+  // Bloco combinacional: sensível a qualquer mudança nas entradas
   always @(*) begin
-    // Reset padrão
+    
+    // ---------------------------------------------------------
+    // 1. Reset Padrão 
+    // Inicializa todos os sinais em 0 ou valores seguros antes de decodificar.
+    // Garante que sinais não usados em uma instrução fiquem desligados.
+    // ---------------------------------------------------------
     RegDst=0; Jump=0; Branch=0; MemRead=0; MemtoReg=0;
     ALUOp=`ALUOP_LW_SW_ADDI; MemWrite=0; ALUSrc=0; RegWrite=0;
-    Jr=0; ExtOp=1; JalEn=0; LuiEn=0;
+    Jr=0; ExtOp=1; JalEn=0; LuiEn=0; // ExtOp=1 por padrão (Extensão de Sinal)
 
+    // ---------------------------------------------------------
+    // 2. Decodificação do Opcode
+    // ---------------------------------------------------------
     case (opcode)
+      
+      // --- Instruções Tipo-R ---
       `MIPS_RTYPE: begin
-        RegDst = 1; RegWrite = 1; ALUOp = `ALUOP_RTYPE;
-        Jr = (funct == `FUNCT_JR) ? 1 : 0;
+        RegDst = 1;      // Destino é o registrador Rd (bits 15-11)
+        RegWrite = 1;    // Habilita escrita no banco de registradores
+        ALUOp = `ALUOP_RTYPE; // Avisa a ULA_Ctrl para olhar o campo 'funct'
+        
+        // Caso especial: JR (Jump Register) é Tipo-R mas afeta o fluxo
+        if (funct == `FUNCT_JR) begin
+            Jr = 1;
+            RegWrite = 0; // JR não escreve em registrador
+        end
       end
-      `MIPS_ADDI: begin ALUSrc = 1; RegWrite = 1; end
+
+      // --- Instruções Tipo-I (Aritmética e Lógica) ---
+      `MIPS_ADDI: begin 
+          ALUSrc = 1;    // 2º operando da ULA é o Imediato
+          RegWrite = 1;  // Escreve o resultado
+      end
+      
+      // Lógicas: Usam Extensão de Zero (ExtOp = 0) pois não têm sinal
       `MIPS_ANDI: begin ALUSrc = 1; RegWrite = 1; ExtOp = 0; ALUOp = `ALUOP_ANDI_ORI_XORI; end
       `MIPS_ORI:  begin ALUSrc = 1; RegWrite = 1; ExtOp = 0; ALUOp = `ALUOP_ANDI_ORI_XORI; end
       `MIPS_XORI: begin ALUSrc = 1; RegWrite = 1; ExtOp = 0; ALUOp = `ALUOP_ANDI_ORI_XORI; end
-      `MIPS_BEQ:  begin Branch = 1; ALUOp = `ALUOP_BEQ_BNE; end
-      `MIPS_BNE:  begin Branch = 1; ALUOp = `ALUOP_BEQ_BNE; end
+
+      // --- Instruções de Branch (Desvio Condicional) ---
+      `MIPS_BEQ:  begin Branch = 1; ALUOp = `ALUOP_BEQ_BNE; end // ULA faz subtração
+      `MIPS_BNE:  begin Branch = 1; ALUOp = `ALUOP_BEQ_BNE; end // ULA faz subtração
+
+      // --- Instruções de Comparação Imediata ---
       `MIPS_SLTI: begin ALUSrc = 1; RegDst = 0; RegWrite = 1; ALUOp = 2'b10; end
       `MIPS_SLTIU:begin ALUSrc = 1; RegDst = 0; RegWrite = 1; ALUOp = 2'b11; end
-      `MIPS_LUI:  begin ALUSrc = 1; RegWrite = 1; LuiEn = 1; end
-      `MIPS_LW:   begin ALUSrc = 1; MemtoReg = 1; RegWrite = 1; MemRead = 1; end
-      `MIPS_SW:   begin ALUSrc = 1; MemWrite = 1; end
+
+      // --- Instrução LUI (Load Upper Immediate) ---
+      `MIPS_LUI:  begin 
+          ALUSrc = 1; 
+          RegWrite = 1; 
+          LuiEn = 1; // Habilita o deslocamento de 16 bits no datapath
+      end
+
+      // --- Acesso à Memória ---
+      `MIPS_LW:   begin 
+          ALUSrc = 1; 
+          MemtoReg = 1; // O dado vem da Memória, não da ULA
+          RegWrite = 1; 
+          MemRead = 1;  // Habilita leitura da RAM
+      end
+      
+      `MIPS_SW:   begin 
+          ALUSrc = 1; 
+          MemWrite = 1; // Habilita escrita na RAM
+      end
+
+      // --- Instruções de Salto (Tipo-J) ---
       `MIPS_J:    begin Jump = 1; end
-      `MIPS_JAL:  begin Jump = 1; RegWrite = 1; JalEn = 1; end
+      
+      `MIPS_JAL:  begin 
+          Jump = 1; 
+          RegWrite = 1; // Precisa escrever o endereço de retorno ($ra)
+          JalEn = 1;    // Habilita a lógica de salvar PC+4 em $31
+      end
+
       default: begin end
     endcase
   end
