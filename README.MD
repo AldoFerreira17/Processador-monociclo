@@ -27,13 +27,21 @@ J-Type	j, jal
 O processador é composto pelos seguintes módulos interconectados:
 
 mips.v (Top-Level): Integra todos os componentes do datapath e controle.
+
 pc.v: Contador de Programa (Program Counter).
+
 i_mem.v: Memória de Instruções (Lê o arquivo instruction.list).
+
 d_mem.v: Memória de Dados (RAM).
+
 regfile.v: Banco de Registradores (32 registradores de 32 bits).
+
 ula.v: Unidade Lógica e Aritmética.
+
 control.v: Unidade de Controle Principal.
+
 ula_ctrl.v: Unidade de Controle da ULA.
+
 sign_extend.v: Extensor de sinal (16 bits -> 32 bits).
 
 comandos
